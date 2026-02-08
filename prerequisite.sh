@@ -38,20 +38,33 @@ sudo apt update
 echo "📦 Installing required packages..."
 sudo apt install make jq -y
 
+# Install docker and plugins
+## Add Docker's official GPG key:
+sudo apt-get -y update && sudo apt-get -y install apt-transport-https ca-certificates cur
+l gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.
+asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
 
+## Add the repository to Apt sources:
+sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
 
-# Install Docker from Official Site
 echo "🐳 Installing Docker..."
-sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
+sudo apt-get -y update
+sudo apt-get -y install \
+       containerd.io=2.2.1-1~ubuntu.24.04~noble \
+       docker-ce=29.2.0-1~ubuntu.24.04~noble \
+       docker-ce-rootless-extras=29.2.0-1~ubuntu.24.04~noble \
+       docker-ce-cli=29.2.0-1~ubuntu.24.04~noble \
+       docker-buildx-plugin \
 
-# Install Docker From Docker Official
-curl -Ol https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/containerd.io_1.7.25-1_amd64.deb
-curl -Ol https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/docker-ce_27.5.1-1~ubuntu.22.04~jammy_amd64.deb
-curl -Ol https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/docker-ce-rootless-extras_27.5.1-1~ubuntu.22.04~jammy_amd64.deb
-curl -Ol https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/docker-ce-cli_27.5.1-1~ubuntu.22.04~jammy_amd64.deb
-
-sudo dpkg -i *.deb
-rm *.deb
 sudo usermod -aG docker $USER
 sudo systemctl start docker
 sudo systemctl enable docker
@@ -79,26 +92,6 @@ sudo mkdir -p /etc/systemd/system/docker.service.d
 sudo systemctl daemon-reload
 sudo systemctl restart docker
 systemctl status --no-pager docker
-
-# Install docker plugin
-## Add Docker's official GPG key:
-sudo apt update
-sudo apt install ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-## Add the repository to Apt sources:
-sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
-Types: deb
-URIs: https://download.docker.com/linux/ubuntu
-Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
-Components: stable
-Signed-By: /etc/apt/keyrings/docker.asc
-EOF
-
-sudo apt update
-sudo apt-get install  -y docker-buildx-plugin docker-compose-plugin
 
 # Essential Tweaks
 sudo swapoff -a

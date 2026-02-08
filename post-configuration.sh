@@ -17,7 +17,7 @@ echo "Host IP: $HOSTIP (dash format: $HOSTIP_DASH)"
 echo "🔧 Configuring OpenStack integration..."
 
 # Activate OpenStack environment
-source /home/ubuntu/venv/bin/activate
+source $HOME/venv/bin/activate
 export OS_CLIENT_CONFIG_FILE=/etc/kolla/clouds.yaml
 export OS_CLOUD=kolla-admin
 
